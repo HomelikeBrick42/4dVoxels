@@ -80,18 +80,42 @@ impl App for Game {
         let mut chunks = Chunks::new();
         let grass = chunks.push_block(Block {
             color: Vector3 {
-                x: 0.0,
-                y: 1.0,
-                z: 0.0,
+                x: 0.2,
+                y: 0.8,
+                z: 0.3,
+            },
+            typ: BlockType::Solid,
+        });
+        let dirt = chunks.push_block(Block {
+            color: Vector3 {
+                x: 0.4,
+                y: 0.3,
+                z: 0.1,
+            },
+            typ: BlockType::Solid,
+        });
+        let stone = chunks.push_block(Block {
+            color: Vector3 {
+                x: 0.6,
+                y: 0.6,
+                z: 0.6,
             },
             typ: BlockType::Solid,
         });
 
         *chunks.get_chunk_mut() = Chunk::new(|_| {
-            [BlockId::AIR, BlockId::AIR, BlockId::AIR, grass]
-                .choose(&mut rand::rng())
-                .copied()
-                .unwrap()
+            [
+                BlockId::AIR,
+                BlockId::AIR,
+                BlockId::AIR,
+                BlockId::AIR,
+                grass,
+                dirt,
+                stone,
+            ]
+            .choose(&mut rand::rng())
+            .copied()
+            .unwrap()
         });
 
         Self {

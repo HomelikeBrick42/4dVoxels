@@ -119,8 +119,10 @@ Optional<float3> hit_chunk(Ray ray, inout uint random_state)
             let voxel_pos = uint4(voxel_pos);
             let block_id = chunk_list[0].blocks[voxel_pos.x][voxel_pos.y][voxel_pos.z][voxel_pos.w];
             let block = block_list[block_id.index];
+
+            let light = max(0.3, dot(step_axis * step_direction, -SunDirection) * 0.5 + 0.5);
             if (block.typ == BlockType.Solid)
-                return block.color * max(0.3, dot(step_axis * step_direction, -SunDirection) * 0.5 + 0.5);
+                return block.color * light;
         }
     }
 
