@@ -1,9 +1,10 @@
 pub mod camera;
 
 use crate::camera::{Camera, RenderView};
-use chunks::{Block, BlockType, Chunks};
+use chunks::{Block, BlockId, BlockType, Chunk, Chunks};
 use core::time::Duration;
 use math::{NoE2Rotor, Vector2, Vector3, Vector4};
+use rand::seq::IndexedRandom;
 use renderer::{
     app::{App, run_app},
     ray_tracing::{self, CameraBuffer, OutputTexture},
@@ -86,12 +87,12 @@ impl App for Game {
             typ: BlockType::Solid,
         });
 
-        *chunks.get_chunk_mut().get_mut(Vector4 {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 0,
-        }) = grass;
+        *chunks.get_chunk_mut() = Chunk::new(|_| {
+            [BlockId::AIR, BlockId::AIR, BlockId::AIR, grass]
+                .choose(&mut rand::rng())
+                .copied()
+                .unwrap()
+        });
 
         Self {
             ray_tracing,

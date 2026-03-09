@@ -54,7 +54,10 @@ void trace_rays(uint3 global_index: SV_DispatchThreadID)
     var color : float3;
     for (var sample = 0u; sample < camera.samples; sample++)
     {
-        let random_offset = float2(random_value(random_state), random_value(random_state));
+        var random_offset = float2(random_value(random_state), random_value(random_state));
+        if (camera.samples == 1u)
+            random_offset = 0.5;
+
         let uv = ((float2(global_index.xy) + random_offset) / float2(width, height)) * 2.0 - 1.0;
 
         let position = camera.position;
@@ -86,14 +89,20 @@ float3 trace_ray(Ray ray, inout uint random_state)
 
 Optional<float3> hit_chunk(Ray ray, inout uint random_state)
 {
+    // if its exact then issues with the divisions can happen
+    for (var i = 0u; i < 4u; i++)
+        if (ray.direction[i] == 0.0)
+            ray.direction[i] = 0.000001;
+
     let step_sizes = 1.0 / abs(ray.direction);
     let step_direction = sign(ray.direction);
     var next_dist = (step_direction * 0.5 + 0.5 - fract(ray.origin)) / ray.direction;
 
+    let max_distance = 20.0;
     var distance = 0.0;
     var voxel_pos = floor(ray.origin);
 
-    for (var i = 0u; i < 20u; i++)
+    for (var i = 0u; i < uint(max_distance); i++)
     {
         let closest_distance = min(min(min(next_dist.x, next_dist.y), next_dist.z), next_dist.w);
         let step_axis = float4(next_dist <= float4(closest_distance));
@@ -102,13 +111,16 @@ Optional<float3> hit_chunk(Ray ray, inout uint random_state)
         next_dist -= float4(closest_distance);
         next_dist += step_sizes * step_axis;
 
+        if (distance > max_distance)
+            break;
+
         if (all(voxel_pos >= float4(0.0) && voxel_pos < float4(CHUNK_SIZE)))
         {
             let voxel_pos = uint4(voxel_pos);
             let block_id = chunk_list[0].blocks[voxel_pos.x][voxel_pos.y][voxel_pos.z][voxel_pos.w];
             let block = block_list[block_id.index];
             if (block.typ == BlockType.Solid)
-                return block.color * (dot(step_axis * step_direction, -SunDirection) * 0.5 + 0.5);
+                return block.color * max(0.3, dot(step_axis * step_direction, -SunDirection) * 0.5 + 0.5);
         }
     }
 

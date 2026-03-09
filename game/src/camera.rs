@@ -96,7 +96,7 @@ impl Camera {
             up,
             right,
             fov: 90f32.to_radians(),
-            samples: 4,
+            samples: 1,
             max_bounces: 4,
             random_seed: rand::random(),
         }
