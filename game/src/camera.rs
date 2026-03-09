@@ -15,32 +15,30 @@ impl Camera {
     }
 
     pub fn update(&mut self, keys: &HashSet<KeyCode>, ts: f32) {
-        let rotation = self.rotation();
-
         let speed = 2.0;
         if keys.contains(&KeyCode::KeyW) {
-            self.position += rotation.x() * speed * ts;
+            self.position += self.base_rotation.x() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyS) {
-            self.position -= rotation.x() * speed * ts;
+            self.position -= self.base_rotation.x() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyQ) {
-            self.position -= rotation.y() * speed * ts;
+            self.position -= self.base_rotation.y() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyE) {
-            self.position += rotation.y() * speed * ts;
+            self.position += self.base_rotation.y() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyA) {
-            self.position -= rotation.z() * speed * ts;
+            self.position -= self.base_rotation.z() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyD) {
-            self.position += rotation.z() * speed * ts;
+            self.position += self.base_rotation.z() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyR) {
-            self.position += rotation.w() * speed * ts;
+            self.position += self.base_rotation.w() * speed * ts;
         }
         if keys.contains(&KeyCode::KeyF) {
-            self.position -= rotation.w() * speed * ts;
+            self.position -= self.base_rotation.w() * speed * ts;
         }
 
         let rotation_speed = 0.5 * TAU;
@@ -65,7 +63,7 @@ impl Camera {
             if keys.contains(&KeyCode::ArrowUp) {
                 self.base_rotation = self
                     .base_rotation
-                    .then(NoE2Rotor::rotate_xw(-rotation_speed * ts));
+                    .then(NoE2Rotor::rotate_xw(rotation_speed * ts));
             }
             if keys.contains(&KeyCode::ArrowDown) {
                 self.base_rotation = self

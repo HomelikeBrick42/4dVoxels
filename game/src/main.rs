@@ -1,7 +1,9 @@
 pub mod camera;
 
+use crate::camera::{Camera, RenderView};
+use chunks::{Block, BlockType, Chunks};
 use core::time::Duration;
-use math::{NoE2Rotor, Vector2, Vector4};
+use math::{NoE2Rotor, Vector2, Vector3, Vector4};
 use renderer::{
     app::{App, run_app},
     ray_tracing::{self, CameraBuffer, OutputTexture},
@@ -9,8 +11,6 @@ use renderer::{
 };
 use std::collections::HashSet;
 use winit::keyboard::KeyCode;
-
-use crate::camera::{Camera, RenderView};
 
 pub struct Game {
     ray_tracing: ray_tracing::Renderer,
@@ -27,6 +27,8 @@ pub struct Game {
     xyz_camera_buffer: CameraBuffer,
     xwz_camera_buffer: CameraBuffer,
     xyw_camera_buffer: CameraBuffer,
+
+    chunks: Chunks,
 }
 
 impl App for Game {
@@ -74,6 +76,23 @@ impl App for Game {
         let xyw_camera_buffer =
             ray_tracing.create_camera_buffer(&camera.into_render(RenderView::XYW));
 
+        let mut chunks = Chunks::new();
+        let grass = chunks.push_block(Block {
+            color: Vector3 {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            typ: BlockType::Solid,
+        });
+
+        *chunks.get_chunk_mut().get_mut(Vector4 {
+            x: 0,
+            y: 0,
+            z: 0,
+            w: 0,
+        }) = grass;
+
         Self {
             ray_tracing,
             ui,
@@ -89,6 +108,8 @@ impl App for Game {
             xyz_camera_buffer,
             xwz_camera_buffer,
             xyw_camera_buffer,
+
+            chunks,
         }
     }
 
@@ -111,6 +132,8 @@ impl App for Game {
         height: u32,
         encoder: &mut wgpu::CommandEncoder,
     ) -> impl FnOnce(&mut wgpu::RenderPass) + use<'a> {
+        self.ray_tracing.upload_chunks(&self.chunks);
+
         {
             let xyz_output_size = self.xyz_output_texture.size();
             if xyz_output_size.width != width || xyz_output_size.height != height {

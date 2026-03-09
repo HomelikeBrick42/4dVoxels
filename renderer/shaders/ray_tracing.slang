@@ -1,5 +1,6 @@
 import include.random;
 import include.ray;
+import include.chunks;
 
 [vk::binding(0, 0)]
 [format("rgba32f")]
@@ -22,11 +23,17 @@ ConstantBuffer<Camera> camera;
 
 struct ObjectsInfo
 {
-    uint foo;
+    uint chunks_count;
 }
 
 [vk::binding(0, 2)]
 ConstantBuffer<ObjectsInfo> objects_info;
+
+[vk::binding(1, 2)]
+StructuredBuffer<Block> block_list;
+
+[vk::binding(2, 2)]
+StructuredBuffer<Chunk> chunk_list;
 
 [shader("compute")]
 [numthreads(16, 16, 1)]
@@ -67,5 +74,43 @@ void trace_rays(uint3 global_index: SV_DispatchThreadID)
 
 float3 trace_ray(Ray ray, inout uint random_state)
 {
+    if (objects_info.chunks_count > 0)
+    {
+        let color = hit_chunk(ray, random_state);
+        if (color.hasValue)
+            return color.value;
+    }
+
     return skybox(ray.direction);
+}
+
+Optional<float3> hit_chunk(Ray ray, inout uint random_state)
+{
+    let step_sizes = 1.0 / abs(ray.direction);
+    let step_direction = sign(ray.direction);
+    var next_dist = (step_direction * 0.5 + 0.5 - fract(ray.origin)) / ray.direction;
+
+    var distance = 0.0;
+    var voxel_pos = floor(ray.origin);
+
+    for (var i = 0u; i < 20u; i++)
+    {
+        let closest_distance = min(min(min(next_dist.x, next_dist.y), next_dist.z), next_dist.w);
+        let step_axis = float4(next_dist <= float4(closest_distance));
+        voxel_pos += step_axis * step_direction;
+        distance += closest_distance;
+        next_dist -= float4(closest_distance);
+        next_dist += step_sizes * step_axis;
+
+        if (all(voxel_pos >= float4(0.0) && voxel_pos < float4(CHUNK_SIZE)))
+        {
+            let voxel_pos = uint4(voxel_pos);
+            let block_id = chunk_list[0].blocks[voxel_pos.x][voxel_pos.y][voxel_pos.z][voxel_pos.w];
+            let block = block_list[block_id.index];
+            if (block.typ == BlockType.Solid)
+                return block.color * (dot(step_axis * step_direction, -SunDirection) * 0.5 + 0.5);
+        }
+    }
+
+    return none;
 }

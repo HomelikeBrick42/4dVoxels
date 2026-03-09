@@ -4,7 +4,7 @@ struct Ray
     float4 direction;
 }
 
-static const float4 SunDirection = normalize(float4(0.3, 1.0, 0.2, 0.0));
+static const float4 SunDirection = normalize(float4(0.3, 1.0, 0.2, 0.1));
 
 float3 skybox(float4 direction)
 {

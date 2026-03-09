@@ -260,6 +260,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "chunks"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "math",
+]
+
+[[package]]
 name = "codespan-reporting"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -513,6 +521,7 @@ dependencies = [
 name = "game"
 version = "0.1.0"
 dependencies = [
+ "chunks",
  "math",
  "rand",
  "renderer",
@@ -1455,6 +1464,7 @@ name = "renderer"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "chunks",
  "math",
  "pollster",
  "wgpu",

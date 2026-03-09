@@ -1,9 +1,10 @@
 [workspace]
 resolver = "3"
-members = ["game", "renderer", "math"]
+members = ["game", "renderer", "math", "chunks"]
 
 [workspace.dependencies]
 renderer = { path = "./renderer" }
+chunks = { path = "./chunks" }
 math = { path = "./math" }
 bytemuck = { version = "1.25.0", features = ["derive"] }
 wgpu = "28.0.0"

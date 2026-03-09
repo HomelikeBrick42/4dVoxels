@@ -3,6 +3,7 @@ mod objects_buffer;
 mod output_texture;
 
 pub use camera_buffer::*;
+use chunks::Chunks;
 use objects_buffer::*;
 pub use output_texture::*;
 
@@ -13,7 +14,6 @@ pub struct Renderer {
     output_texture_bind_group_layout: wgpu::BindGroupLayout,
     camera_bind_group_layout: wgpu::BindGroupLayout,
 
-    #[expect(unused)]
     objects_bind_group_layout: wgpu::BindGroupLayout,
     objects_buffer: ObjectsBuffer,
 
@@ -89,6 +89,16 @@ impl Renderer {
             camera,
             &self.camera_bind_group_layout,
         )
+    }
+
+    pub fn upload_chunks(&mut self, chunks: &Chunks) {
+        self.objects_buffer.write_buffer(
+            &self.device,
+            &self.queue,
+            &self.objects_bind_group_layout,
+            chunks.block_list(),
+            std::slice::from_ref(chunks.get_chunk()),
+        );
     }
 
     pub fn render(
