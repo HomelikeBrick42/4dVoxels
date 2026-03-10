@@ -1,13 +1,12 @@
 pub mod camera;
 
 use crate::camera::{Camera, RenderView};
-use chunks::{Block, BlockId, BlockType, Chunk, Chunks};
 use core::time::Duration;
 use math::{NoE2Rotor, Vector2, Vector3, Vector4};
 use rand::seq::IndexedRandom;
 use renderer::{
     app::{App, run_app},
-    ray_tracing::{self, CameraBuffer, OutputTexture},
+    ray_tracing::{self, Block, BlockId, BlockType, CameraBuffer, Chunk, Chunks, OutputTexture},
     ui::{self, TextureView},
 };
 use std::collections::HashSet;
@@ -174,9 +173,9 @@ impl App for Game {
         }
         {
             let xwz_output_size = self.xwz_output_texture.size();
-            if xwz_output_size.width != width / 4 || xwz_output_size.height != height / 4 {
+            if xwz_output_size.width != height / 4 || xwz_output_size.height != height / 4 {
                 self.xwz_output_texture = self.ray_tracing.create_output_texture(
-                    width / 4,
+                    height / 4,
                     height / 4,
                     wgpu::TextureUsages::TEXTURE_BINDING,
                 );
@@ -187,9 +186,9 @@ impl App for Game {
         }
         {
             let xyw_output_size = self.xyw_output_texture.size();
-            if xyw_output_size.width != width / 4 || xyw_output_size.height != height / 4 {
+            if xyw_output_size.width != height / 4 || xyw_output_size.height != height / 4 {
                 self.xyw_output_texture = self.ray_tracing.create_output_texture(
-                    width / 4,
+                    height / 4,
                     height / 4,
                     wgpu::TextureUsages::TEXTURE_BINDING,
                 );

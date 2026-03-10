@@ -102,10 +102,22 @@ Optional<float3> hit_chunk(Ray ray, inout uint random_state)
     var distance = 0.0;
     var voxel_pos = floor(ray.origin);
 
-    for (var i = 0u; i < uint(max_distance); i++)
+    for (var i = 0u; i < uint(max_distance * 4); i++)
     {
         let closest_distance = min(min(min(next_dist.x, next_dist.y), next_dist.z), next_dist.w);
-        let step_axis = float4(next_dist <= float4(closest_distance));
+
+        // could use a comparison operator here but that can skip through blocks sometimes
+        // maybe this could be allowed if it becomes a performance issue
+        var step_axis : float4;
+        if (next_dist.x == closest_distance)
+            step_axis = float4(1.0, 0.0, 0.0, 0.0);
+        else if (next_dist.y == closest_distance)
+            step_axis = float4(0.0, 1.0, 0.0, 0.0);
+        else if (next_dist.z == closest_distance)
+            step_axis = float4(0.0, 0.0, 1.0, 0.0);
+        else if (next_dist.w == closest_distance)
+            step_axis = float4(0.0, 0.0, 0.0, 1.0);
+
         voxel_pos += step_axis * step_direction;
         distance += closest_distance;
         next_dist -= float4(closest_distance);

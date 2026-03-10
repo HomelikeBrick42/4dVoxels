@@ -8,7 +8,6 @@ renderer = { workspace = true }
 wgpu = { workspace = true }
 winit = { workspace = true }
 math = { workspace = true }
-chunks = { workspace = true }
 rand = "0.10.0"
 
 [lints]

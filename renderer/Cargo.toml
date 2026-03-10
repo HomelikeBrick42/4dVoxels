@@ -9,7 +9,6 @@ pollster = "0.4.0"
 wgpu = { workspace = true }
 winit = { workspace = true }
 math = { workspace = true }
-chunks = { workspace = true }
 
 [lints]
 workspace = true

@@ -1,5 +1,5 @@
+use crate::ray_tracing::{Block, BlockId, BlockType, Chunk};
 use bytemuck::NoUninit;
-use chunks::{Block, BlockId, BlockType, Chunk};
 use math::Vector3;
 use wgpu::util::DeviceExt as _;
 

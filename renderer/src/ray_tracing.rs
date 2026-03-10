@@ -1,9 +1,11 @@
 mod camera_buffer;
+mod chunks;
 mod objects_buffer;
 mod output_texture;
 
 pub use camera_buffer::*;
-use chunks::Chunks;
+pub use chunks::Chunks;
+pub use chunks::*;
 use objects_buffer::*;
 pub use output_texture::*;
 
